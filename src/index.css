@@ -1,0 +1,172 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* hide system cursor globally when custom cursor enabled,
+   but keep text cursor for inputs so selection & typing still look normal */
+.custom-cursor-enabled * {
+  cursor: none !important;
+}
+.custom-cursor-enabled input,
+.custom-cursor-enabled textarea,
+.custom-cursor-enabled select,
+.custom-cursor-enabled [contenteditable] {
+  cursor: text !important;
+}
+
+/* root cursor element (position updated by JS) */
+.custom-cursor {
+  opacity: 0;
+  transition: opacity 0.18s linear;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* the droplet shape (tweak colors/sizes here) */
+.custom-cursor .drop {
+  width: 70%;
+  height: 70%;
+  border-radius: 55% 45% 60% 40% / 60% 60% 40% 40%;
+  background: linear-gradient(135deg, #7dd3fc 0%, #0284c7 100%); /* light → darker blue */
+  box-shadow: 0 8px 18px rgba(2, 6, 23, 0.18), inset 0 -6px 12px rgba(255,255,255,0.15);
+  transition: transform 0.18s cubic-bezier(.2,.9,.3,1), filter 0.18s;
+  transform-origin: center bottom;
+}
+
+/* hover (enlarge + slight lift + rotation) */
+.custom-cursor.hover .drop {
+  transform: scale(1.6) translateY(-8px) rotate(-8deg);
+  filter: drop-shadow(0 12px 18px rgba(2,6,23,0.15));
+}
+
+/* pressed (mouse down) — subtle squash */
+.custom-cursor.pressed .drop {
+  transform: scale(0.92) translateY(0);
+}
+
+/* optional: make cursor slightly larger site-wide by CSS var */
+:root {
+  --custom-cursor-size: 36px;
+}
+
+/* example for mobile/touch fallback: hide custom cursor entirely if body has class set by JS (we handle via isTouchDevice). */
+
+@keyframes waterShimmer {
+  0% {
+    filter: brightness(1) contrast(1);
+  }
+  50% {
+    filter: brightness(1.2) contrast(1.1);
+  }
+  100% {
+    filter: brightness(1) contrast(1);
+  }
+}
+
+.water-cursor {
+  width: 24px;
+  height: 36px;
+
+  /* closer arrow shape (tip top-left, base bottom-right) */
+  clip-path: polygon(
+    0% 0%,   /* tip */
+    5% 70%, /* left edge */
+    35% 60%, /* inner notch */
+    60% 100%,/* bottom corner */
+    75% 95%, /* back edge */
+    55% 55%, /* inner angle */
+    100% 55%,/* right side */
+    0% 0%    /* close path */
+  );
+
+  /* watery style */
+  background: rgba(173, 216, 230, 0.15);
+  background-image: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.3) 25%,
+    rgba(0, 150, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.3) 75%
+  );
+  background-size: 200% 200%;
+  animation: waterFlow 3s linear infinite, wobble 1.8s ease-in-out infinite;
+
+  backdrop-filter: blur(4px) saturate(180%);
+  -webkit-backdrop-filter: blur(4px) saturate(180%);
+
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+/* Continuous water movement */
+@keyframes waterFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes wobble {
+  0%   { transform: rotate(0deg) scale(1); }
+  25%  { transform: rotate(-2deg) scale(1.02); }
+  50%  { transform: rotate(1.5deg) scale(0.98); }
+  75%  { transform: rotate(-1deg) scale(1.01); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+/* Ripple ring that trails the cursor */
+.water-cursor::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(173, 216, 230, 0.4);
+  transform: translate(-50%, -50%) scale(0.5);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* animation for ripple expanding outward */
+@keyframes ripple {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.5);
+    opacity: 0;
+  }
+}
+
+.water-cursor.rippling::after {
+  animation: ripple 0.6s ease-out forwards;
+}
+.cursor-ripple {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(173, 216, 230, 0.4);
+  transform: translate(-50%, -50%) scale(0.5);
+  opacity: 0.6;
+  pointer-events: none;
+  animation: rippleTrail 0.8s ease-out forwards;
+}
+
+@keyframes rippleTrail {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(3);
+    opacity: 0;
+  }
+}
